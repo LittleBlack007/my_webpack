@@ -9,7 +9,55 @@ const toml = require('toml');
 module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',  // 开发环境下，代码错误追踪
-  entry: './src/index.js',
+  /**
+   * 多入口配置
+   * index.bundle.js 1.41mib(引入了lodash)
+   * another.bundle.js 1.37MiB(引入了lodash)
+  */
+  //  entry: { 
+  //    index: './src/index.js', 
+  //    another: './src/another.js' 
+  // },
+
+  /**
+   * 正常多入口是不会对公共模块代码进行分离的，要配合 dependOn 使用
+   * 公共库不会被打包在index.js 和 another.js 中
+   * 公共代码会打包到share.js 中
+  */
+  // entry: {
+  //   index: {
+  //     import: './src/index.js',
+  //     dependOn: 'shared',
+  //   },
+  //   another: {
+  //     import: './src/another.js',
+  //     dependOn: 'shared',
+  //   },
+  //   shared: 'lodash'
+  // },
+
+  /**
+   * 使用SplitChunkPlugin插件去重和分离代码 一步到位
+   * 在optimization配置该插件
+   * webpack5自带的插件
+  */
+  // entry:{
+  //   index: './src/index.js', 
+  //   another: './src/another.js' 
+  // },
+
+  /**
+   * 动态导入
+   * 使用import().then 的方式导入的库，会自动打包为一个bundle文件中
+   * 如果动态导入和静态导入混合用在一个文件里面，需要开启splitChunkPlugin才能抽离公共部分
+   * index.js import _ from 'lodash'
+   * lodash 会被打包到index.js中，动态引用的lodash直接在index.js中导入，不再单独产生一个文件
+   * 解决方法：重新开启splitChunkPlugin
+  */
+  entry:{
+    index: './src/index.js', 
+  },
+
   devServer:{  
     // 实时监控dist文件 有变化重新加载webpack-dev-server 在编译之后不会写入到任何输出文件。而是将 bundle 文
     // 件保留在内存中，然后将它们 serve 到 server 中，就好像它们是挂载在 server
@@ -17,7 +65,8 @@ module.exports = {
     static: './dist', 
   },
   output:{
-    filename: 'bundle.js',
+    // 多入口需要filename 名字有区别，所以需要加入[name]
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, './dist'),  // 输出路径一定要绝对路径
     clean: true,  // 输出bundle之前是否清空dist文件夹 
     // 配置资源文件 模块化打包名 配置  优先级体育 rules 的 generator
@@ -133,6 +182,9 @@ module.exports = {
   optimization: {
     minimizer: [
       new CssMinimizerWebpackPlugin(), // 压缩css代码 需要将mode:production
-    ]
+    ],
+    splitChunks:{  // webpack5自带的插件 分离和去重公共模块的代码，打包到独立的文件中
+      chunks: 'all',
+    }
   }
 }

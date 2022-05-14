@@ -9,8 +9,8 @@ import xmlData from './assets/data.xml';
 import json5Data from './assets/data.json5';
 import yamlData from './assets/data.yaml';
 import tomlData from './assets/data.toml';
-import helloPromise from './promise-test.js';
-
+import loadsh from 'lodash';
+import './ansync-module.js';
 
 // 图片
 const img = document.createElement('img');
@@ -45,4 +45,3 @@ console.log(json5Data);
 console.log(yamlData);
 console.log(tomlData);
 test();
-helloPromise();
