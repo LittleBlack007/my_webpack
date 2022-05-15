@@ -1,0 +1,15 @@
+.bisque{
+  background-color: bisque;
+}
+
+@font-face{
+  font-family: 'iconfont';
+  src: url('../assets/iconfont.ttf') format('truetype');
+}
+
+.icon{
+  font-family: 'iconfont' !important;
+  font-size: 30px;
+  font-style: normal;
+  color: palevioletred;
+}
